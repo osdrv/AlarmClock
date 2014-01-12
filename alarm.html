@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Alarm clock</title>
+  <style type="text/css">
+  
+  .controls {
+    width: 100%;
+    text-align: center;
+  }
+
+  .with_padding {
+    padding-top: 200px;
+  }
+
+  </style>
+</head>
+<body>
+  <div class="controls with_padding" id="controls">
+    
+  </div>
+  <div class="controls with_padding">
+    <button id="start">Start</button>
+    <button id="cancel" disabled>Cancel</button>
+    <audio src="audio/C4_Staccato_mf.mp3" id="player" loop></audio>
+  </div>
+</body>
+  <script type="text/javascript">
+
+    var holder,
+        startButton,
+        cancelButton,
+        hourInput,
+        minuteInput,
+        audioPlayer,
+        hourSelect,
+        minuteSelect,
+        globalTimer;
+
+    function createSelectInput(name, values, holder) {
+      var select = document.createElement('select');
+      select.id = name + "Select";
+      select.name = name;
+      for (var i = 0, l = values.length; i < l; i++) {
+        (function(v) {
+          var option = document.createElement('option');
+          option.value = v;
+          option.innerHTML = v;
+          select.appendChild(option);
+        })(values[i]);
+      }
+      holder.appendChild(select);
+
+      return select;
+    }
+
+    function createHourSelect() {
+      var values = [];
+      for (var i = 0; i < 24; i++) {
+        values.push(i);
+      }
+      
+      return createSelectInput('hour', values, holder);
+    }
+
+    function createMinuteSelect() {
+      var values = [];
+      for (var i = 0; i < 12; i++) {
+        values.push(i * 5);
+      }
+      
+      return createSelectInput('minute', values, holder);
+    }
+
+    function scheduleAlarm(hours, minutes) {
+      var t;
+      globalTimer = window.setInterval(function() {
+        t = new Date();
+        if ((t.getHours() == hours) && (t.getMinutes() == minutes)) {
+          audioPlayer.play();
+          window.clearInterval(globalTimer);
+        }
+      }, 1000);
+    }
+
+    function abortAlarm() {
+      audioPlayer.pause();
+      window.clearInterval(globalTimer);
+    }
+
+    function init() {
+      
+      holder = document.getElementById('controls');
+      
+      hourSelect = createHourSelect();
+      minuteSelect = createMinuteSelect();
+      
+      audioPlayer = document.getElementById('player');
+      startButton = document.getElementById('start');
+      cancelButton = document.getElementById('cancel');
+
+      function handleStart() {
+        startButton.setAttribute('disabled', true);
+        cancelButton.removeAttribute('disabled');
+        scheduleAlarm(hourSelect.value|0, minuteSelect.value|0);
+        hourSelect.setAttribute('disabled', true);
+        minuteSelect.setAttribute('disabled', true);
+      }
+
+      function handleCancel() {
+        startButton.removeAttribute('disabled');
+        cancelButton.setAttribute('disabled', true);
+        abortAlarm();
+        hourSelect.removeAttribute('disabled');
+        minuteSelect.removeAttribute('disabled');
+      }
+
+      start.addEventListener('click', handleStart, false);
+      cancel.addEventListener('click', handleCancel, false);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      init();
+    }, false)
+  </script>
+
+</html>
